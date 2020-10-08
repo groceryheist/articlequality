@@ -7,7 +7,7 @@
 
     Usage:
         extract_labelings <dump-file>... [--extractor=<name>] [--threads=<num>]
-                                         [--output=<path>] [--verbose]
+                                         [--output=<path>] [--logfile=<name>] [--verbose]
                                          [--debug]
         extract_labelings -h | --help
 
@@ -22,6 +22,7 @@
         --output=<path>     The path to a file to dump observations to
                             [default: <stdout>]
         --verbose           Prints dots to <stderr>
+        --logfile=<name>    Where to output logging [default: <stdout>
         --debug           Print debug level logging
 """
 import logging
@@ -49,6 +50,10 @@ def main(argv=None):
         threads = cpu_count()
     else:
         threads = int(args['--threads'])
+    if args['--logfile'] == "<stdout>":
+        logfile = sys.stdout
+    else:
+        logfile = open(os.path.expanduser(args['--logfile']),'w')
 
     if args['--output'] == "<stdout>":
         output = sys.stdout
@@ -59,6 +64,7 @@ def main(argv=None):
     debug = args['--debug']
 
     logging.basicConfig(
+        stream=logfile,
         level=logging.DEBUG if debug else logging.WARNING,
         format='%(asctime)s %(levelname)s:%(name)s -- %(message)s'
     )
@@ -112,7 +118,7 @@ def extract_labelings(dump, extractor=None, verbose=False):
         * dump_talk_page_title -- The normalized title of the talk page
         * project -- A project (often a WikiProject) associated with the label
         * timestamp -- The timestamp the labeling was observed
-        * wp10 -- The quality label that was extracted
+       * wp10 -- The quality label that was extracted
     """
 
     if extractor is None:
