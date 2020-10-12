@@ -38,7 +38,7 @@ def main(argv=None):
     if args['--output'] == '<stdout>':
         output = sys.stdout
     else:
-        output = open(args['--output'])
+        output = open(args['--output'], 'w')
 
     session = mwapi.Session(args['--api-host'],
                             user_agent="ArticleQuality fetch_text utility.")
