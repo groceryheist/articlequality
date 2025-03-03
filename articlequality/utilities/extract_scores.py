@@ -216,7 +216,7 @@ def score_text(model, text, return_features=False):
 
 def revision_scores(model, sunset, skip_scores_before, return_features=False):
 
-    def _revision_scores(dump, path, return_features):
+    def _revision_scores(dump, path):
 
         for page in dump:
             if int(page.namespace) != 0 or page.redirect:
@@ -235,7 +235,7 @@ def revision_scores(model, sunset, skip_scores_before, return_features=False):
 
 def latest_scores(model, sunset, skip_scores_before, return_features=False):
 
-    def _latest_scores(dump, path, return_features):
+    def _latest_scores(dump, path):
 
         for page in dump:
             if int(page.namespace) != 0 or page.redirect:
@@ -256,7 +256,7 @@ def latest_scores(model, sunset, skip_scores_before, return_features=False):
 
 def threshold_scores(model, sunset, skip_scores_before, thresholds, return_features=False):
 
-    def _threshold_scores(dump, path, return_features):
+    def _threshold_scores(dump, path):
 
         for page in dump:
             if int(page.namespace) != 0 or page.redirect:
