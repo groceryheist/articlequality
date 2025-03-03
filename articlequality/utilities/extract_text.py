@@ -45,7 +45,7 @@ def main(argv=None):
         path = os.path.expanduser(args['--labelings'])
         labelings = read_observations(open(path))
 
-    grouped_labelings = groupby(labelings, key=lambda l: l['page_title'])
+    grouped_labelings = groupby(labelings, key=lambda l: l['dump_talk_page_title'])
     page_labelings = {title: sorted(list(labs), key=lambda l: l['timestamp'])
                       for title, labs in grouped_labelings}
 
