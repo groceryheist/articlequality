@@ -1,2 +1,15 @@
 *.model filter=lfs diff=lfs merge=lfs -text
 models/*.model filter=lfs diff=lfs merge=lfs -text
+models/ptwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/svwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/ukwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/wikidatawiki.item_quality.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/euwiki.wp10.random_forest.model filter=lfs diff=lfs merge=lfs -text
+models/fawiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/frwikisource.page_level.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/frwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/glwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/nlwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/ruwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/trwiki.wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
+models/enwiki.nettrom_wp10.gradient_boosting.model filter=lfs diff=lfs merge=lfs -text
