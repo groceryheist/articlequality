@@ -1,0 +1,19 @@
+[project]
+name = "articlequality-git"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mwapi>=0.6.1",
+    "mwbase>=0.1.0,<0.1.999",
+    "mwreverts>=0.1.5",
+    "mwtypes>=0.3.2",
+    "mwxml>=0.3.3",
+    "revscoring>=3.0",
+]
+
+dynamic=['license','authors','classifiers','scripts']
+
+[tool.uv.sources]
+revscoring = { git = "https://github.com/groceryheist/revscoring.git" }
