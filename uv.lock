@@ -89,7 +89,7 @@ wheels = [
 ]
 
 [[package]]
-name = "articlequality-git"
+name = "articlequality"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
@@ -393,7 +393,7 @@ wheels = [
 
 [[package]]
 name = "mwxml"
-version = "0.3.3"
+version = "0.3.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -401,9 +401,9 @@ dependencies = [
     { name = "mwtypes" },
     { name = "para" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ab/47/4e9fc0684370048b6673783409b410a840c62e4fd34164ba177fe0d373c9/mwxml-0.3.3.tar.gz", hash = "sha256:0848df0cf2e293718f554311acf4715bd679f639f4e52cbe47d8206589db1d31", size = 16274 }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/d3/78e0b7d2ac9a8e5e4af1157e30d3ae575edc0cdb618706ea4eb8649cc099/mwxml-0.3.6.tar.gz", hash = "sha256:5a53181d302152ad03ec513ff186a89e0c7e1fcc50c78330452a0872caa63935", size = 18536 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/28/af/1277846ecfdc19d8ba9fd75cf5a180955f21709d52c98f8c20bec525de84/mwxml-0.3.3-py2.py3-none-any.whl", hash = "sha256:9695848b8b6987b6f6addc2a8accba5b2bcbc543702598194e182b508ab568a9", size = 32580 },
+    { url = "https://files.pythonhosted.org/packages/3b/e8/cf48d7e707faf85e5bcaaa08d02d5ee9dd4b64c45a6e4c11c5d71f798d86/mwxml-0.3.6-py2.py3-none-any.whl", hash = "sha256:f5e0cde46c7d4b0d1d921f8f0aa14d691b6eaa6532b901dacc6c7407be26c70a", size = 33198 },
 ]
 
 [[package]]
