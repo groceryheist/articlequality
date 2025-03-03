@@ -192,9 +192,9 @@ def run(paths, model, sunset, score_at, rev_scores, skip_scores_before, output_f
         else:
             outfields = [page_id, title, rev_id, timestamp.short_format(),
                          score['prediction'], score['probability'], weighted_sum]
-
+        
         if 'features' in score:
-            outfields = outfields.append(json.dumps(score['features']))
+            outfields.append(json.dumps(score['features']))
 
         rev_scores.write(outfields)
 
