@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-
+- migrate from `setuptools` to `uv`
 
 ## [0.4.4]
 

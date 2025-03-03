@@ -33,7 +33,7 @@ item_quality_major_minor = 0.5
 
 ########################## English Wikipedia ###################################
 datasets/enwiki.labelings.20150602.json:
-	./utility extract_labelings \
+	uv run ./utility extract_labelings \
 	  /mnt/data/xmldatadumps/public/enwiki/20150602/enwiki-20150602-pages-meta-history*.xml*.bz2 \
 	  --verbose > $@
 
@@ -59,21 +59,21 @@ datasets/enwiki.labelings.30k.json: \
 datasets/enwiki.labeling_revisions.w_text.30k.json: \
 		datasets/enwiki.labelings.30k.json
 	cat $< | \
-	./utility fetch_text \
+	uv run ./utility fetch_text \
 	  --api-host=https://en.wikipedia.org  --threads 4 \
 	  --verbose > $@
 
 datasets/enwiki.labeling_revisions.w_cache.30k.json: \
 		datasets/enwiki.labeling_revisions.w_text.30k.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.enwiki.wp10 \
 	  --verbose > $@
 
 datasets/enwiki.labeling_revisions.w_cache.nettrom_30k.json: \
 		datasets/enwiki.labeling_revisions.nettrom_30k.json
 	cat $< | \
-	revscoring extract \
+	uv run revscoring extract \
 	  articlequality.feature_lists.enwiki.wp10 \
 	  --host https://en.wikipedia.org \
 	  --verbose > $@
@@ -81,7 +81,7 @@ datasets/enwiki.labeling_revisions.w_cache.nettrom_30k.json: \
 tuning_reports/enwiki.nettrom_wp10.md: \
 		datasets/enwiki.labeling_revisions.w_cache.nettrom_30k.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.enwiki.wp10 \
 	  wp10 \
@@ -98,7 +98,7 @@ tuning_reports/enwiki.nettrom_wp10.md: \
 models/enwiki.nettrom_wp10.gradient_boosting.model: \
 		datasets/enwiki.labeling_revisions.w_cache.nettrom_30k.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.enwiki.wp10 \
 	  wp10 \
@@ -115,7 +115,7 @@ models/enwiki.nettrom_wp10.gradient_boosting.model: \
 	  --pop-rate '"FA"=0.002646891675853838' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/enwiki.nettrom_wp10.md
+	uv run revscoring model_info $@ > model_info/enwiki.nettrom_wp10.md
 
 enwiki_models: \
 	models/enwiki.nettrom_wp10.gradient_boosting.model
@@ -132,11 +132,11 @@ datasets/euwiki.sampled_revisions.172_balanced.json:
 	wget https://quarry.wmflabs.org/run/379904/output/0/json-lines -qO- > $@
 
 datasets/euwiki.human_labeled.400.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
 	 https://labels.wmflabs.org/campaigns/euwiki/79/ > $@
 
 datasets/euwiki.human_labeled.v2.172_balanced.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
 	 https://labels.wmflabs.org/campaigns/euwiki/91/ > $@
 
 datasets/euwiki.human_labeled.300_balanced.json: \
@@ -156,7 +156,7 @@ datasets/euwiki.human_labeled.472_balanced.json: \
 datasets/euwiki.human_labeled.w_cache.472_balanced.json: \
 		datasets/euwiki.human_labeled.472_balanced.json
 	cat $< | \
-	revscoring extract \
+	uv run revscoring extract \
 	  articlequality.feature_lists.euwiki.wp10 \
 	  --host https://eu.wikipedia.org \
 	  --verbose > $@
@@ -164,7 +164,7 @@ datasets/euwiki.human_labeled.w_cache.472_balanced.json: \
 tuning_reports/euwiki.wp10.md: \
 		datasets/euwiki.human_labeled.w_cache.472_balanced.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.euwiki.wp10 \
 	  wp10 \
@@ -176,7 +176,7 @@ tuning_reports/euwiki.wp10.md: \
 models/euwiki.wp10.random_forest.model: \
 		datasets/euwiki.human_labeled.w_cache.472_balanced.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.RandomForest \
 	  articlequality.feature_lists.euwiki.wp10 \
 	  wp10 \
@@ -203,7 +203,7 @@ datasets/glwiki.ga_and_fa_labeled.233.json:
 	wget https://quarry.wmflabs.org/run/290027/output/0/json-lines -qO- > $@
 
 datasets/glwiki.human_labeled.400.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
 		https://labels.wmflabs.org/campaigns/glwiki/85 > $@
 
 datasets/glwiki.merged_labeled.633.json: \
@@ -223,7 +223,7 @@ datasets/glwiki.human_labeled.400_balanced.json: \
 datasets/glwiki.human_labeled.w_cache.400_balanced.json: \
 		datasets/glwiki.human_labeled.400_balanced.json
 	cat $< | \
-	revscoring extract \
+	uv run revscoring extract \
 	  articlequality.feature_lists.glwiki.wp10 \
 	  --host https://gl.wikipedia.org \
 	  --verbose > $@
@@ -231,7 +231,7 @@ datasets/glwiki.human_labeled.w_cache.400_balanced.json: \
 tuning_reports/glwiki.wp10.md: \
 		datasets/glwiki.human_labeled.w_cache.400_balanced.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.glwiki.wp10 \
 	  wp10 \
@@ -243,7 +243,7 @@ tuning_reports/glwiki.wp10.md: \
 models/glwiki.wp10.gradient_boosting.model: \
 		datasets/glwiki.human_labeled.w_cache.400_balanced.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.glwiki.wp10 \
 	  wp10 \
@@ -271,15 +271,15 @@ datasets/fawiki.sampled_revisions.300.json:
 	wget https://quarry.wmflabs.org/run/255116/output/0/json-lines?download=true -qO- > $@
 
 datasets/fawiki.human_labeled.100.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
                 https://labels.wmflabs.org/campaigns/fawiki/70/ > $@
 
 datasets/fawiki.human_labeled.300.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
 		https://labels.wmflabs.org/campaigns/fawiki/71/ > $@
 
 datasets/fawiki.human_labeled.600.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
 		https://labels.wmflabs.org/campaigns/fawiki/77/ > $@
 
 datasets/fawiki.labeled_revisions.1k.json: \
@@ -292,14 +292,14 @@ datasets/fawiki.labeled_revisions.1k.json: \
 datasets/fawiki.labeling_revisions.w_text.1k.json: \
 		datasets/fawiki.labeled_revisions.1k.json
 	cat $< | \
-	revscoring fetch_text \
+	uv run revscoring fetch_text \
 	  --host=https://fa.wikipedia.org \
 	  --verbose > $@
 
 datasets/fawiki.labeling_revisions.w_cache.1k.json: \
 		datasets/fawiki.labeling_revisions.w_text.1k.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.fawiki.wp10 \
 	  --verbose > $@
 
@@ -307,7 +307,7 @@ datasets/fawiki.labeling_revisions.w_cache.1k.json: \
 tuning_reports/fawiki.wp10.md: \
 		datasets/fawiki.labeling_revisions.w_cache.1k.json
 	grep -v '"wp10": null' $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.fawiki.wp10 \
 	  wp10 \
@@ -325,7 +325,7 @@ tuning_reports/fawiki.wp10.md: \
 models/fawiki.wp10.gradient_boosting.model: \
 		datasets/fawiki.labeling_revisions.w_cache.1k.json
 	grep -v '"wp10": null' $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.fawiki.wp10 \
 	  wp10 \
@@ -342,7 +342,7 @@ models/fawiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"FA"=0.21243941841680128' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/fawiki.wp10.md
+	uv run revscoring model_info $@ > model_info/fawiki.wp10.md
 
 fawiki_models: \
 	models/fawiki.wp10.gradient_boosting.model
@@ -360,7 +360,7 @@ fawiki_tuning_reports: \
 #	  /mnt/data/xmldatadumps/public/frwiki/20151202/frwiki-20151202-pages-meta-history*.xml*.bz2 > $@
 
 datasets/frwiki.labelings.20181201.json:
-	./utility extract_labelings \
+	uv run ./utility extract_labelings \
 	  /mnt/data/xmldatadumps/public/frwiki/20181201/frwiki-20181201-pages-meta-history*.xml*.bz2 > $@
 
 
@@ -385,14 +385,14 @@ datasets/frwiki.labelings.9k.json: \
 datasets/frwiki.labeling_revisions.w_text.9k.json: \
 		datasets/frwiki.labelings.9k.json
 	cat $< | \
-	./utility fetch_text \
+	uv run ./utility fetch_text \
 	  --api-host=https://fr.wikipedia.org \
 	  --verbose > $@
 
 datasets/frwiki.labeling_revisions.w_cache.9k.json: \
 		datasets/frwiki.labeling_revisions.w_text.9k.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.frwiki.wp10 \
 	  --verbose > $@
 
@@ -400,7 +400,7 @@ datasets/frwiki.labeling_revisions.w_cache.9k.json: \
 tuning_reports/frwiki.wp10.md: \
 		datasets/frwiki.labeling_revisions.w_cache.9k.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.frwiki.wp10 \
 	  wp10 \
@@ -418,7 +418,7 @@ tuning_reports/frwiki.wp10.md: \
 models/frwiki.wp10.gradient_boosting.model: \
 		datasets/frwiki.labeling_revisions.w_cache.9k.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.frwiki.wp10 \
 	  wp10 \
@@ -435,7 +435,7 @@ models/frwiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"adq"=0.00143486997313615' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/frwiki.wp10.md
+	uv run revscoring model_info $@ > model_info/frwiki.wp10.md
 
 frwiki_models: \
 	models/frwiki.wp10.gradient_boosting.model
@@ -454,7 +454,7 @@ datasets/frwikisource.sampled_revisions.200k_2017.json:
 datasets/frwikisource.sampled_revisions.with_text.200k_2017.json: \
 		datasets/frwikisource.sampled_revisions.200k_2017.json
 	cat $< | \
-	revscoring fetch_text \
+	uv run revscoring fetch_text \
 		--host=https://fr.wikisource.org --threads 4 \
 		--verbose > $@
 
@@ -474,14 +474,14 @@ datasets/frwikisource.labeled_revisions.with_text.20k_balanced_2017.json: \
 datasets/frwikisource.labeled_revisions.w_cache.20k_balanced_2017.json: \
 		datasets/frwikisource.labeled_revisions.with_text.20k_balanced_2017.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.frwikisource.pagelevel \
 	  --verbose > $@
 
 tuning_reports/frwikisource.page_level.md: \
 		datasets/frwikisource.labeled_revisions.w_cache.20k_balanced_2017.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.frwikisource.pagelevel \
 	  page_level \
@@ -497,7 +497,7 @@ tuning_reports/frwikisource.page_level.md: \
 models/frwikisource.page_level.gradient_boosting.model: \
 		datasets/frwikisource.labeled_revisions.w_cache.20k_balanced_2017.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.frwikisource.pagelevel \
 	  page_level \
@@ -512,7 +512,7 @@ models/frwikisource.page_level.gradient_boosting.model: \
 	  --pop-rate '"without_text"=0.03170337988910835' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/frwikisource.page_level.md
+	uv run revscoring model_info $@ > model_info/frwikisource.page_level.md
 
 frwikisource_models: \
 	models/frwikisource.page_level.gradient_boosting.model
@@ -529,7 +529,7 @@ datasets/nlwiki.balanced_As_Bs_and_Es.from_balanced_labelings.1650_2021.json: \
 	cat $< | grep -P '"wp10": "(A|B|E)"' > $@
 
 datasets/nlwiki.human_labels.20210901.100_Ds_Cs_and_Bs.json:
-	./utility fetch_labels https://labels.wmflabs.org/campaigns/nlwiki/97 \
+	uv run ./utility fetch_labels https://labels.wmflabs.org/campaigns/nlwiki/97 \
 		--aggregation=median | \
 	sed -r 's/"item_quality"/"wp10"/' \
 	> $@
@@ -540,10 +540,10 @@ datasets/nlwiki.combined_labelings.1700_2021.json: \
 		datasets/nlwiki.human_labels.manually_extracted.2021-09-23.json \
                 datasets/nlwiki.human_labels.20210901.100_Ds_Cs_and_Bs.json \
 		datasets/nlwiki.human_labels.manually_extracted.2021-12-12.json
-	revscoring union_merge_observations $^ > $@
+	uv run revscoring union_merge_observations $^ > $@
 
 datasets/nlwiki.latest_scores.20210901.tsv:
-	./utility extract_scores /mnt/data/xmldatadumps/public/nlwiki/20210901/nlwiki-20210901-pages-articles?.xml-p*.bz2 \
+	uv run ./utility extract_scores /mnt/data/xmldatadumps/public/nlwiki/20210901/nlwiki-20210901-pages-articles?.xml-p*.bz2 \
 	 --class-weight='"A"=5' --class-weight='"B"=4'  --class-weight='"C"=3' --class-weight='"D"=2' --class-weight='"E"=1' \
 	 --sunset=20210901000000 --model=models/nlwiki.wp10.gradient_boosting.model > $@
 
@@ -575,7 +575,7 @@ datasets/nlwiki.rebalanced_labelings.160_2021.json: \
 datasets/nlwiki.rebalanced_labelings.160_2021.w_cache.json: \
 		datasets/nlwiki.rebalanced_labelings.160_2021.json
 	cat $< | \
-	revscoring extract \
+	uv run revscoring extract \
 	  articlequality.feature_lists.nlwiki.wp10 \
 	  --host https://nl.wikipedia.org \
 	  --verbose > $@
@@ -584,7 +584,7 @@ datasets/nlwiki.rebalanced_labelings.160_2021.w_cache.json: \
 tuning_reports/nlwiki.wp10.md: \
 		datasets/nlwiki.rebalanced_labelings.160_2021.w_cache.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.nlwiki.wp10 \
 	  wp10 \
@@ -601,7 +601,7 @@ tuning_reports/nlwiki.wp10.md: \
 models/nlwiki.wp10.gradient_boosting.model: \
 		datasets/nlwiki.rebalanced_labelings.160_2021.w_cache.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.nlwiki.wp10 \
 	  wp10 \
@@ -617,7 +617,7 @@ models/nlwiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"A"=0.20' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/nlwiki.wp10.md
+	uv run revscoring model_info $@ > model_info/nlwiki.wp10.md
 
 nlwiki_models: \
 	models/nlwiki.wp10.gradient_boosting.model
@@ -629,7 +629,7 @@ nlwiki_tuning_reports: \
 
 ########################## Portuguese Wikipedia ################################
 datasets/ptwiki.labelings.20200301.json:
-	./utility extract_labelings \
+	uv run ./utility extract_labelings \
 	  /mnt/data/xmldatadumps/public/ptwiki/20200301/ptwiki-20200301-pages-meta-history*.xml*.bz2 \
 	  --debug > $@
 
@@ -661,21 +661,21 @@ datasets/ptwiki.balanced_labelings.4k_2020.json: \
 datasets/ptwiki.labeled_revisions.with_text.4k_2020.json: \
 		datasets/ptwiki.balanced_labelings.4k_2020.json
 	cat $< | \
-	./utility fetch_text \
+	uv run ./utility fetch_text \
 	  --api-host=https://pt.wikipedia.org \
 	  --verbose > $@
 
 datasets/ptwiki.labeled_revisions.w_cache.4k_2020.json: \
 		datasets/ptwiki.labeled_revisions.with_text.4k_2020.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.ptwiki.wp10 \
 	  --verbose > $@
 
 tuning_reports/ptwiki.wp10.md: \
 		datasets/ptwiki.labeled_revisions.w_cache.4k_2020.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.ptwiki.wp10 \
 	  wp10 \
@@ -693,7 +693,7 @@ tuning_reports/ptwiki.wp10.md: \
 models/ptwiki.wp10.gradient_boosting.model: \
 		datasets/ptwiki.labeled_revisions.w_cache.4k_2020.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.ptwiki.wp10 \
 	  wp10 \
@@ -710,7 +710,7 @@ models/ptwiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"6"=0.0482165515' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/ptwiki.wp10.md
+	uv run revscoring model_info $@ > model_info/ptwiki.wp10.md
 
 ptwiki_models: \
 	models/ptwiki.wp10.gradient_boosting.model
@@ -722,7 +722,7 @@ ptwiki_tuning_reports: \
 
 ########################## Russian Wikipedia ###################################
 datasets/ruwiki.labelings.20181201.json:
-	./utility extract_labelings \
+	uv run ./utility extract_labelings \
 		/mnt/data/xmldatadumps/public/ruwiki/20181201/ruwiki-20181201-pages-meta-history*.xml*.bz2 > $@
 
 datasets/ruwiki.labelings.10k.json: \
@@ -748,21 +748,21 @@ datasets/ruwiki.labelings.10k.json: \
 datasets/ruwiki.labeling_revisions.w_text.10k.json: \
 		datasets/ruwiki.labelings.10k.json
 	cat $< | \
-	./utility fetch_text \
+	uv run ./utility fetch_text \
 	  --api-host=https://ru.wikipedia.org \
 	  --verbose > $@
 
 datasets/ruwiki.labeling_revisions.w_cache.10k.json: \
 		datasets/ruwiki.labeling_revisions.w_text.10k.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.ruwiki.wp10 \
 	  --verbose > $@
 
 tuning_reports/ruwiki.wp10.md: \
 		datasets/ruwiki.labeling_revisions.w_cache.10k.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.ruwiki.wp10 \
 	  wp10 \
@@ -799,7 +799,7 @@ models/ruwiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"ИС"=0.007472826086956522' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/ruwiki.wp10.md
+	uv run revscoring model_info $@ > model_info/ruwiki.wp10.md
 
 ruwiki_models: \
 	models/ruwiki.wp10.gradient_boosting.model
@@ -823,21 +823,21 @@ datasets/svwiki.labelings.2k.json: \
 datasets/svwiki.labeling_revisions.w_text.2k.json: \
 		datasets/svwiki.labelings.2k.json
 	cat $< | \
-	./utility fetch_text \
+	uv run ./utility fetch_text \
 	  --api-host=https://sv.wikipedia.org \
 	  --verbose > $@
 
 datasets/svwiki.labeling_revisions.w_cache.2k.json: \
 		datasets/svwiki.labeling_revisions.w_text.2k.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.svwiki.wp10 \
 	  --verbose > $@
 
 tuning_reports/svwiki.wp10.md: \
 		datasets/svwiki.labeling_revisions.w_cache.2k.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.svwiki.wp10 \
 	  wp10 \
@@ -853,7 +853,7 @@ tuning_reports/svwiki.wp10.md: \
 models/svwiki.wp10.gradient_boosting.model: \
 		datasets/svwiki.labeling_revisions.w_cache.2k.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.svwiki.wp10 \
 	  wp10 \
@@ -868,7 +868,7 @@ models/svwiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"s"=0.879' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/svwiki.wp10.md
+	uv run revscoring model_info $@ > model_info/svwiki.wp10.md
 
 svwiki_models: \
 	models/svwiki.wp10.gradient_boosting.model
@@ -879,7 +879,7 @@ svwiki_tuning_reports: \
 
 ############################ Turkish Wikipedia #############################
 datasets/trwiki.labelings.20181201.json:
-	./utility extract_labelings \
+	uv run ./utility extract_labelings \
 		/mnt/data/xmldatadumps/public/trwiki/20181201/trwiki-20181201-pages-meta-history.xml.bz2 > $@
 
 datasets/trwiki.labelings.2k.json: \
@@ -894,21 +894,21 @@ datasets/trwiki.labelings.2k.json: \
 datasets/trwiki.labeling_revisions.w_text.2k.json: \
 		datasets/trwiki.labelings.2k.json
 	cat $< | \
-	./utility fetch_text \
+	uv run ./utility fetch_text \
 	  --api-host=https://tr.wikipedia.org \
 	  --verbose > $@
 
 datasets/trwiki.labeling_revisions.w_cache.2k.json: \
 		datasets/trwiki.labeling_revisions.w_text.2k.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.trwiki.wp10 \
 	  --verbose > $@
 
 tuning_reports/trwiki.wp10.md: \
 		datasets/trwiki.labeling_revisions.w_cache.2k.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.trwiki.wp10 \
 	  wp10 \
@@ -926,7 +926,7 @@ tuning_reports/trwiki.wp10.md: \
 models/trwiki.wp10.gradient_boosting.model: \
 		datasets/trwiki.labeling_revisions.w_cache.2k.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.trwiki.wp10 \
 	  wp10 \
@@ -943,7 +943,7 @@ models/trwiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"sm"=0.015744385274369065' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/trwiki.wp10.md
+	uv run revscoring model_info $@ > model_info/trwiki.wp10.md
 
 trwiki_models: \
 	models/trwiki.wp10.gradient_boosting.model
@@ -953,7 +953,7 @@ trwiki_tuning_reports: \
 
 ####################### Ukrainian Wikipedia #################################
 datasets/ukwiki.labelings.20200501.json:
-	./utility extract_labelings \
+	uv run ./utility extract_labelings \
 		/mnt/data/xmldatadumps/public/ukwiki/20200501/ukwiki-20200501-pages-meta-history?*.xml-*.bz2 > $@
 
 datasets/ukwiki.labelings.900_balanced.json: \
@@ -977,21 +977,21 @@ datasets/ukwiki.labelings.900_balanced.json: \
 datasets/ukwiki.labeling_revisions.w_text.900_balanced.json: \
 		datasets/ukwiki.labelings.900_balanced.json
 	cat $< | \
-	./utility fetch_text \
+	uv run ./utility fetch_text \
 	  --api-host=https://uk.wikipedia.org \
 	  --verbose > $@
 
 datasets/ukwiki.labeling_revisions.w_cache.900_balanced.json: \
 		datasets/ukwiki.labeling_revisions.w_text.900_balanced.json
 	cat $< | \
-	./utility extract_from_text \
+	uv run ./utility extract_from_text \
 	  articlequality.feature_lists.ukwiki.wp10 \
 	  --verbose > $@
 
 tuning_reports/ukwiki.wp10.md: \
 		datasets/ukwiki.labeling_revisions.w_cache.900_balanced.json
 	cat $< | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.ukwiki.wp10 \
 	  wp10 \
@@ -1008,7 +1008,7 @@ tuning_reports/ukwiki.wp10.md: \
 models/ukwiki.wp10.gradient_boosting.model: \
 		datasets/ukwiki.labeling_revisions.w_cache.900_balanced.json
 	cat $< | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.ukwiki.wp10 \
 	  wp10 \
@@ -1025,7 +1025,7 @@ models/ukwiki.wp10.gradient_boosting.model: \
 	  --pop-rate '"ВС"=0.00412565727' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/ukwiki.wp10.md
+	uv run revscoring model_info $@ > model_info/ukwiki.wp10.md
 
 ukwiki_models: \
 	models/ukwiki.wp10.gradient_boosting.model
@@ -1038,7 +1038,7 @@ ukwiki_tuning_reports: \
 # From https://quarry.wmflabs.org/query/17904
 datasets/wikidatawiki.stratified_revisions.filtered_sample.json:
 	wget https://quarry.wmflabs.org/run/167696/output/0/json-lines?download=true -qO- | \
-	./utility fetch_item_info --api-host https://wikidata.org --claim P31 --verbose | \
+	uv run ./utility fetch_item_info --api-host https://wikidata.org --claim P31 --verbose | \
 	grep -v '"P31": "Q4167410"' | \
 	grep -v '"P31": "Q4167836"' | \
 	grep -v '"P31": "Q17633526"' | \
@@ -1064,17 +1064,17 @@ datasets/wikidatawiki.stratified_revisions.5k_sample.json: \
 	) > $@
 
 datasets/wikidatawiki.labelings.5k.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
 		https://labels.wmflabs.org/campaigns/wikidatawiki/53/ > $@
 
 datasets/wikidatawiki.labelings.7k.2020.json:
-	./utility fetch_labels \
+	uv run ./utility fetch_labels \
 		https://labels.wmflabs.org/campaigns/wikidatawiki/95/ > $@
 
 datasets/wikidatawiki.labeling_revisions.w_cache.5k.json: \
 		datasets/wikidatawiki.labelings.5k.json
 	cat $< | \
-	revscoring extract \
+	uv run revscoring extract \
 	  articlequality.feature_lists.wikidatawiki.item_quality \
 	  --host https://www.wikidata.org \
 	  --batch-size 10 \
@@ -1083,7 +1083,7 @@ datasets/wikidatawiki.labeling_revisions.w_cache.5k.json: \
 datasets/wikidatawiki.labeling_revisions.w_cache.7k.2020.json: \
 		datasets/wikidatawiki.labelings.7k.2020.json
 	cat $< | \
-	revscoring extract \
+	uv run revscoring extract \
 	  articlequality.feature_lists.wikidatawiki.item_quality \
 	  --host https://www.wikidata.org \
 	  --batch-size 10 \
@@ -1093,7 +1093,7 @@ tuning_reports/wikidatawiki.item_quality.md: \
 		datasets/wikidatawiki.labeling_revisions.w_cache.5k.json \
 		datasets/wikidatawiki.labeling_revisions.w_cache.7k.2020.json
 	cat $^ | \
-	revscoring tune \
+	uv run revscoring tune \
 	  config/classifiers.params.yaml \
 	  articlequality.feature_lists.wikidatawiki.item_quality \
 	  item_quality \
@@ -1106,7 +1106,7 @@ models/wikidatawiki.item_quality.gradient_boosting.model: \
 		datasets/wikidatawiki.labeling_revisions.w_cache.5k.json \
 		datasets/wikidatawiki.labeling_revisions.w_cache.7k.2020.json
 	cat $^ | \
-	revscoring cv_train \
+	uv run revscoring cv_train \
 	  revscoring.scoring.models.GradientBoosting \
 	  articlequality.feature_lists.wikidatawiki.item_quality \
 	  item_quality \
@@ -1118,7 +1118,7 @@ models/wikidatawiki.item_quality.gradient_boosting.model: \
 	  --labels '"A","B","C","D","E"' \
 	  --center --scale > $@
 
-	revscoring model_info $@ > model_info/wikidatawiki.item_quality.md
+	uv run revscoring model_info $@ > model_info/wikidatawiki.item_quality.md
 
 wikidatawiki_models: \
 	models/wikidatawiki.item_quality.gradient_boosting.model
