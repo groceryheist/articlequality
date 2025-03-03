@@ -1,5 +1,5 @@
 [project]
-name = "articlequality-git"
+name = "articlequality"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -10,10 +10,6 @@ dependencies = [
     "mwreverts>=0.1.5",
     "mwtypes>=0.4.0",
     "mwxml>=0.3.3",
-    "revscoring>=3.0",
 ]
 
 dynamic=['license','authors','classifiers','scripts']
-
-[tool.uv.sources]
-revscoring = { git = "https://github.com/groceryheist/revscoring.git" }
