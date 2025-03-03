@@ -145,7 +145,7 @@ def main(argv=None):
     verbose = args['--verbose']
     run(paths, model, sunset, score_at, rev_scores, skip_scores_before,
         output_features=bool(args['--output_features']),
-        processes, verbose=verbose)
+        processes=processes, verbose=verbose)
 
 
 def run(paths, model, sunset, score_at, rev_scores, skip_scores_before, output_features,
