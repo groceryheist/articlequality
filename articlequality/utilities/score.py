@@ -34,7 +34,7 @@ def main(argv=None):
     print(score(scorer_model, text))
 
 
-def score(scorer_model, text, cache=None, context=None):
+def score(scorer_model, text, cache=None, context=None, return_features=False):
     """
     Scores a chunck of Wikitext markup
 
@@ -55,6 +55,6 @@ def score(scorer_model, text, cache=None, context=None):
     feature_values = extract_from_text(
         scorer_model.features, text, cache=cache, context=context)
 
-    score = scorer_model.score(feature_values)
+    score = scorer_model.score(feature_values, return_features)
 
     return score

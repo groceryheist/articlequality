@@ -10,6 +10,7 @@ Usage:
                                  [--rev-scores=<path>]
                                  [--extend=<path>]
                                  [--processes=<num>]
+                                 [--output-features]
                                  [--verbose]
                                  [--debug]
                                  [--class-weight=<def>...]
@@ -31,6 +32,7 @@ Options:
     --class-weight=<def>  Replace the predefined class weights.
                           Should be specified multiple times.
                           Format: A=5
+    --output-features     Add features to the output.
     --verbose             Prints dots and stuff to stderr
     --debug               Print debug logging
 """
@@ -48,7 +50,7 @@ import mysqltsv
 from revscoring import Model
 from revscoring.datasources import revision_oriented
 from revscoring.dependencies import solve
-
+from revscoring.scoring.models.sklearn import Classifier, ProbabilityClassifier
 logger = logging.getLogger(__name__)
 r_text = revision_oriented.revision.text
 
@@ -75,8 +77,10 @@ CLASS_WEIGHTS = {
 }
 
 START_YEAR = 2001
-HEADERS = ["page_id", "title", "rev_id", "timestamp", "prediction",
+CLASSIFIER_HEADERS = ["page_id", "title", "rev_id", "timestamp", "prediction",
            "weighted_sum"]
+PROBABILITY_CLASSIFIER_HEADERS = ["page_id", "title", "rev_id", "timestamp",
+                                  "prediction", "probability", "weighted_sum"]
 MONTHS = ["{0:02d}".format(i) for i in range(1, 13)]
 SCORE_ATS = {'revision', 'monthly', 'biannually', 'annually', 'latest'}
 
@@ -99,6 +103,14 @@ def main(argv=None):
     with open(args['--model']) as f:
         model = Model.load(f)
 
+    if isinstance(model, ProbabilityClassifier): 
+        headers = PROBABILITY_CLASSIFIER_HEADERS
+    else:
+        headers = CLASSIFIER_HEADERS
+
+    if args['--output-features']:
+        headers.append("features")
+
     sunset = mwtypes.Timestamp(args['--sunset'])
 
     if args['--score-at'] not in SCORE_ATS:
@@ -108,10 +120,10 @@ def main(argv=None):
         score_at = args['--score-at']
 
     if args['--rev-scores'] == "<stdout>":
-        rev_scores = mysqltsv.Writer(sys.stdout, headers=HEADERS)
+        rev_scores = mysqltsv.Writer(sys.stdout, headers=headers)
     else:
         rev_scores = mysqltsv.Writer(
-            open(args['--rev-scores'], "w"), headers=HEADERS)
+            open(args['--rev-scores'], "w"), headers=headers)
 
     if args['--extend'] is None:
         skip_scores_before = {}
@@ -132,16 +144,17 @@ def main(argv=None):
 
     verbose = args['--verbose']
     run(paths, model, sunset, score_at, rev_scores, skip_scores_before,
+        output_features=bool(args['--output_features']),
         processes, verbose=verbose)
 
 
-def run(paths, model, sunset, score_at, rev_scores, skip_scores_before,
+def run(paths, model, sunset, score_at, rev_scores, skip_scores_before, output_features,
         processes, verbose=False):
 
     if score_at == "revision":
-        process_dump = revision_scores(model, sunset, skip_scores_before)
+        process_dump = revision_scores(model, sunset, skip_scores_before, return_features=output_features)
     elif score_at == "latest":
-        process_dump = latest_scores(model, sunset, skip_scores_before)
+        process_dump = latest_scores(model, sunset, skip_scores_before, return_features=output_features)
     else:
         sunset_year = int(sunset.strftime("%Y"))
         if score_at == "monthly":
@@ -161,7 +174,7 @@ def run(paths, model, sunset, score_at, rev_scores, skip_scores_before,
             raise RuntimeError("{0} is not a valid 'score_at' value"
                                .format(score_at))
         process_dump = threshold_scores(
-            model, sunset, skip_scores_before, thresholds)
+            model, sunset, skip_scores_before, thresholds, return_features=output_features)
 
     results = mwxml.map(process_dump, paths, threads=processes)
     for page_id, title, rev_id, timestamp, (e, score) in results:
@@ -172,9 +185,18 @@ def run(paths, model, sunset, score_at, rev_scores, skip_scores_before,
 
         weighted_sum = sum(CLASS_WEIGHTS[cls] * score['probability'][cls]
                            for cls in score['probability'])
-        rev_scores.write(
-            [page_id, title, rev_id, timestamp.short_format(),
-             score['prediction'], weighted_sum])
+        if 'probability' not in score:
+            
+            outfields = [page_id, title, rev_id, timestamp.short_format(),
+                         score['prediction'], weighted_sum]
+        else:
+            outfields = [page_id, title, rev_id, timestamp.short_format(),
+                         score['prediction'], score['probability'], weighted_sum]
+
+        if 'features' in score:
+            outfields = outfields.append(json.dumps(score['features']))
+
+        rev_scores.write(outfields)
 
         if verbose:
             sys.stderr.write(score['prediction'] + " ")
@@ -184,17 +206,17 @@ def run(paths, model, sunset, score_at, rev_scores, skip_scores_before,
         sys.stderr.write("\n")
 
 
-def score_text(model, text):
+def score_text(model, text, return_features=False):
     try:
         feature_values = list(solve(model.features, cache={r_text: text}))
-        return None, model.score(feature_values)
+        return None, model.score(feature_values, return_features)
     except Exception as e:
         return e, None
 
 
-def revision_scores(model, sunset, skip_scores_before):
+def revision_scores(model, sunset, skip_scores_before, return_features=False):
 
-    def _revision_scores(dump, path):
+    def _revision_scores(dump, path, return_features):
 
         for page in dump:
             if int(page.namespace) != 0 or page.redirect:
@@ -204,16 +226,16 @@ def revision_scores(model, sunset, skip_scores_before):
                 if page.id in skip_scores_before and \
                    skip_scores_before[page.id] >= revision.timestamp:
                     continue
-                error_score = score_text(model, revision.text)
+                error_score = score_text(model, revision.text, return_features)
                 yield (page.id, page.title, revision.id, revision.timestamp,
                        error_score)
 
     return _revision_scores
 
 
-def latest_scores(model, sunset, skip_scores_before):
+def latest_scores(model, sunset, skip_scores_before, return_features=False):
 
-    def _latest_scores(dump, path):
+    def _latest_scores(dump, path, return_features):
 
         for page in dump:
             if int(page.namespace) != 0 or page.redirect:
@@ -226,15 +248,15 @@ def latest_scores(model, sunset, skip_scores_before):
             if page.id in skip_scores_before and \
                skip_scores_before[page.id] >= sunset:
                 continue
-            error_score = score_text(model, last_revision.text)
+            error_score = score_text(model, last_revision.text, return_features)
             yield (page.id, page.title, last_revision.id, sunset, error_score)
 
     return _latest_scores
 
 
-def threshold_scores(model, sunset, skip_scores_before, thresholds):
+def threshold_scores(model, sunset, skip_scores_before, thresholds, return_features=False):
 
-    def _threshold_scores(dump, path):
+    def _threshold_scores(dump, path, return_features):
 
         for page in dump:
             if int(page.namespace) != 0 or page.redirect:
@@ -253,7 +275,7 @@ def threshold_scores(model, sunset, skip_scores_before, thresholds):
 
                 if len(page_ts) > 0 and revision.timestamp > page_ts[0] and \
                    last_revision is not None:
-                    error_score = score_text(model, last_revision.text)
+                    error_score = score_text(model, last_revision.text, return_features)
                     while len(page_ts) > 0 and revision.timestamp > page_ts[0]:
                         threshold_ts = page_ts.pop(0)
                         yield (page.id, page.title, last_revision.id,
@@ -262,7 +284,7 @@ def threshold_scores(model, sunset, skip_scores_before, thresholds):
                 last_revision = revision
 
             if len(page_ts) > 0:
-                error_score = score_text(model, last_revision.text)
+                error_score = score_text(model, last_revision.text, return_features)
                 for threshold_ts in page_ts:
                     yield (page.id, page.title, last_revision.id, threshold_ts,
                            error_score)
