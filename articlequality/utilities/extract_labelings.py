@@ -22,7 +22,7 @@
         --output=<path>     The path to a file to dump observations to
                             [default: <stdout>]
         --verbose           Prints dots to <stderr>
-        --logfile=<name>    Where to output logging [default: <stdout>
+        --logfile=<name>    Where to output logging [default: <stdout>]
         --debug           Print debug level logging
 """
 import logging
